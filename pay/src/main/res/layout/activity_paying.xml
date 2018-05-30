@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray_light">
+    <include layout="@layout/include_title_bar" />
+    <TextView
+        android:id="@+id/paying_txv_show"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:padding="40dp"
+        android:gravity="center"
+        android:drawablePadding="@dimen/spacing_normal"
+        android:textColor="@color/black"
+        android:textSize="@dimen/font_size_big" />
+    <TextView
+        android:id="@+id/paying_txv_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:paddingTop="@dimen/spacing_normal"
+        android:paddingBottom="@dimen/spacing_normal"
+        android:paddingLeft="@dimen/spacing_large"
+        android:paddingRight="@dimen/spacing_large"
+        android:layout_gravity="center_horizontal" />
+</LinearLayout>

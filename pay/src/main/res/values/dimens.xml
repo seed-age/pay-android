@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="font_size_normal">15sp</dimen>
+    <dimen name="font_size_big">18sp</dimen>
+    <dimen name="font_size_large">21sp</dimen>
+    <dimen name="font_size_huge">24sp</dimen>
+
+    <dimen name="spacing_normal">10dp</dimen>
+    <dimen name="spacing_big">15dp</dimen>
+    <dimen name="spacing_large">20dp</dimen>
+
+    <dimen name="icon_size">32dp</dimen>
+</resources>

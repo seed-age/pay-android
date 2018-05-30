@@ -1,47 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".MainActivity">
-    <Button
-        android:id="@+id/key_maker"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="查看/生成渠道公钥/私钥"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <Button
+            android:id="@+id/key_maker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="查看/生成渠道公钥/私钥"/>
 
-    <EditText
-        android:id="@+id/sample"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-    <Button
-        android:id="@+id/encrypt"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="加密"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="加密结果:"/>
-    <TextView
-        android:id="@+id/encrypt_content"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-    <Button
-        android:id="@+id/decrypt"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="解密"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="解密结果:"/>
-    <TextView
-        android:id="@+id/decrypt_content"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        <EditText
+            android:id="@+id/sample"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/encrypt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="加密"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="加密结果:"/>
+        <TextView
+            android:id="@+id/encrypt_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/decrypt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="解密"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="解密结果:"/>
+        <TextView
+            android:id="@+id/decrypt_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/pay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="支付"/>
+        <!--<TextView-->
+            <!--android:id="@+id/alipay_result"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content" />-->
+        <!--<Button-->
+            <!--android:id="@+id/wechatpay"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="微信支付"/>-->
+        <!--<TextView-->
+            <!--android:id="@+id/wechatpay_result"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content" />-->
 
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>

@@ -13,15 +13,28 @@ android {
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
+        resValue "string", "channel", "test"         // 渠道号
+        resValue "string", "key", "hay8qwz"          // 开发者Key
+        resValue "string", "channel_id", "282591"    // 渠道ID
     }
 
     buildTypes {
+
+        debug {
+            resValue "string", "http_host", "https://test-open.seedland.cc/"
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
+    resourcePrefix 'seedpay_'
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
 }
 
 dependencies {
@@ -31,4 +44,16 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    implementation('cc.seedland.inf:network:1.0.1-SNAPSHOT@aar') {
+        transitive = true
+        changing = true
+    }
+
+    implementation('cc.seedland.inf:corework:1.0.1-SNAPSHOT@aar') {
+        transitive = true
+        changing = true
+    }
+
+    implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
 }

@@ -1,6 +1,9 @@
 package cc.seedland.inf.paydemo.rsa;
 
+import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 
 import java.security.Key;
 import java.security.KeyFactory;
@@ -13,6 +16,8 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.crypto.Cipher;
 
@@ -26,11 +31,61 @@ import javax.crypto.Cipher;
  */
 public class SignUtil {
 
-    public static final String ECB_PKCS1_PADDING = "RSA/ECB/PKCS1Padding";//加密填充方式
-
     private SignUtil() {
 
     }
+
+
+   public static TreeMap<String, String> signPrivate(String keyContent, Map<String, String> params) {
+       TreeMap<String, String> result = new TreeMap<>();
+        result.putAll(params);
+        try {
+            PrivateKey key = loadPrivateKey(keyContent);
+            Signature signer = Signature.getInstance("SHA1WithRSA");
+            signer.initSign(key);
+
+            String signQuery = generateQueryString(result, false);
+            Log.d("SeedPay", "before sign ----> " + signQuery);
+            signer.update(signQuery.getBytes());
+            result.put("sign", Base64.encodeToString(signer.sign(), Base64.DEFAULT));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalStateException("sign failed");
+        }
+        return result;
+
+    }
+
+    /**
+     * 生成请求参数地址
+     * @param params
+     * @return
+     */
+    private static String generateQueryString(Map<String, String> params, boolean encodeFlag) {
+        StringBuilder paramSb = new StringBuilder();
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if(TextUtils.isEmpty(value)) { // 去除值为空的参数
+                continue;
+            }
+            paramSb.append(encodeFlag ? encode(key) : key);
+            paramSb.append("=");
+            paramSb.append(encodeFlag ? encode(value) : value);
+            paramSb.append("&");
+        }
+        if(paramSb.length() > 0) {
+            paramSb.deleteCharAt(paramSb.length() - 1);
+        }
+
+        return paramSb.toString();
+
+    }
+
+    private static String encode(String value) {
+        return Uri.encode(value, "UTF-8");
+    }
+
 
     /**
      * 从字符串中加载私钥<br>

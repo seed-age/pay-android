@@ -3,6 +3,7 @@
           package="cc.seedland.inf.paydemo">
 
     <application
+        android:name=".PayDemoApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -19,7 +20,13 @@
         </activity>
         <activity android:name=".SecretKeyActivity"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="cc.seedland.inf.PAY" />
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>

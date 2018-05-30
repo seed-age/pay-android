@@ -68,7 +68,6 @@ public class SecretKeyActivity extends AppCompatActivity {
     private void refreshKeys() {
         publicKey = prefs.getString("public", null);
         privateKey = prefs.getString("private", null);
-        Log.e("seedpay", publicKey);
     }
 
     public void initKey() throws Exception {

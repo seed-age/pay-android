@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">pay</string>
+
+    <!-- 收银台 -->
+    <string name="cashier_title">收银台</string>
+    <string name="cashier_money">应付金额</string>
+    <string name="cashier_method">选择支付方式</string>
+    <string name="cashier_confirm">确认支付</string>
+
+    <!-- paying -->
+    <string name="paying_success">支付成功</string>
+    <string name="paying_failed">支付失败</string>
+    <string name="paying_waiting">订单正在处理中</string>
+    <string name="paying_tip">稍后您可以在我的订单中查询结果，谢谢</string>
+    <string name="paying_action_check">查看订单</string>
+    <string name="paying_action_consume">继续支付订单</string>
 </resources>
