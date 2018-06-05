@@ -6,6 +6,7 @@ import java.util.Map;
 
 import cc.seedland.inf.corework.mvp.IBaseView;
 import cc.seedland.inf.pay.cashier.PayMethodBean;
+import cc.seedland.inf.pay.factory.IPayResultCallback;
 
 /**
  * 作者 ： 徐春蕾
@@ -15,15 +16,14 @@ import cc.seedland.inf.pay.cashier.PayMethodBean;
  **/
 public interface PayingContract {
     interface View extends IBaseView {
-        void showWXPay(Map<String, String> orderParams);
-        void showAliPay(String orderInfo);
+        void showPay(String order);
         void showSuccess();
         void showFailed();
         void showWaiting();
     }
 
     interface Presenter {
-        void callPay(String method, String orderInfo);
+        void callPay(String orderInfo);
         void handleResult(Map<String, String> result);
     }
 }

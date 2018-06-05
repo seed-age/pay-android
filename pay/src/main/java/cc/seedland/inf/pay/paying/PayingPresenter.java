@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 
 import cc.seedland.inf.corework.mvp.BasePresenter;
+import cc.seedland.inf.pay.factory.IPayClient;
+import cc.seedland.inf.pay.factory.IPayResultCallback;
 
 /**
  * 作者 ： 徐春蕾
@@ -27,8 +29,8 @@ public class PayingPresenter extends BasePresenter<PayingContract.View> implemen
     }
 
     @Override
-    public void callPay(final String method, final String orderInfo) {
-        if(method == null || orderInfo == null) {
+    public void callPay(final String orderInfo) {
+        if(orderInfo == null) {
             return;
         }
         if(getView() != null) {
@@ -36,17 +38,7 @@ public class PayingPresenter extends BasePresenter<PayingContract.View> implemen
             Executors.newSingleThreadExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
-                    if(method.equals("wxpay.app")) {
-                        String[] paramsArray = orderInfo.split("&");
-                        Map<String, String> orderParams = new HashMap<>();
-                        for(String param : paramsArray) {
-                            String[] paramPair = param.split("=");
-                            orderParams.put(paramPair[0], paramPair[1]);
-                        }
-                        getView().showWXPay(orderParams);
-                    }else if(method.equals("alipay.app")) {
-                        getView().showAliPay(orderInfo);
-                    }
+                    getView().showPay(orderInfo);
                 }
             });
         }
@@ -57,21 +49,10 @@ public class PayingPresenter extends BasePresenter<PayingContract.View> implemen
         if(getView() == null) {
             return;
         }
-        String method = result.get("method");
-        if(method.equals("alipay.app")) {
-            String code = result.get("resultStatus");
-            if(code.equals("9000")) {
-                getView().showSuccess();
-            }else {
-                getView().showFailed();
-            }
-        }else if(method.equals("wxpay.app")) {
-            String code = result.get("code");
-            if(code.equals("0")) {
-                getView().showSuccess();
-            }else {
-                getView().showFailed();
-            }
+        if(result.get("code").equals("0")) {
+            getView().showSuccess();
+        }else {
+            getView().showFailed();
         }
     }
 }

@@ -14,6 +14,9 @@ import java.util.Map;
 import cc.seedland.inf.network.GsonHolder;
 import cc.seedland.inf.network.SeedCallback;
 import cc.seedland.inf.pay.PayHome;
+import cc.seedland.inf.pay.R;
+import cc.seedland.inf.pay.factory.IPayClient;
+import cc.seedland.inf.pay.factory.PayClientFactory;
 
 /**
  * 作者 ： 徐春蕾
@@ -23,7 +26,7 @@ import cc.seedland.inf.pay.PayHome;
  **/
 public class CashierModel {
 
-
+    public static final int ERROR_CODE_METHODS_NONE = R.string.cashier_error_no_methods_supported;
 
     public CashierModel() {
 

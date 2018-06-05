@@ -6,6 +6,7 @@
     <string name="cashier_money">应付金额</string>
     <string name="cashier_method">选择支付方式</string>
     <string name="cashier_confirm">确认支付</string>
+    <string name="cashier_error_no_methods_supported">您尚未安装微信/支付宝或版本过低</string>
 
     <!-- paying -->
     <string name="paying_success">支付成功</string>
@@ -14,4 +15,8 @@
     <string name="paying_tip">稍后您可以在我的订单中查询结果，谢谢</string>
     <string name="paying_action_check">查看订单</string>
     <string name="paying_action_consume">继续支付订单</string>
+    <string name="paying_method_not_suppored">很抱歉，我们暂时不支持%1$s支付方式</string>
+
+    <!-- 对话框 -->
+    <string name="dialog_action_confirm">确定</string>
 </resources>

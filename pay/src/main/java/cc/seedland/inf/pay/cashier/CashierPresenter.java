@@ -3,6 +3,7 @@ package cc.seedland.inf.pay.cashier;
 import com.alipay.sdk.app.PayTask;
 import com.lzy.okgo.model.Response;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
@@ -31,6 +32,14 @@ public class CashierPresenter extends BasePresenter<CashierContract.View> implem
 
     @Override
     public void pay(PayMethodBean.MethodItemBean payItem, Map<String, String> tradeParams) {
+
+        if(getView() == null) {
+            return;
+        }
+
+        if(getView() != null) {
+            getView().showLoading();
+        }
         if(payItem != null && tradeParams != null && !tradeParams.isEmpty()) {
             final String method = payItem.type;
             model.preparePay(payItem.type, tradeParams, new SeedCallback<PayCallBean>(PayCallBean.class){
@@ -55,26 +64,15 @@ public class CashierPresenter extends BasePresenter<CashierContract.View> implem
                         getView().showToast(msg);
                     }
                 }
-            });
 
-//            final String orderInfo = payItem.;   // 订单信息
-//
-//            Runnable payRunnable = new Runnable() {
-//
-//                @Override
-//                public void run() {
-//                    PayTask alipay = new PayTask(DemoActivity.this);
-//                    String result = alipay.payV2(orderInfo,true);
-//
-//                    Message msg = new Message();
-//                    msg.what = SDK_PAY_FLAG;
-//                    msg.obj = result;
-//                    mHandler.sendMessage(msg);
-//                }
-//            };
-//            // 必须异步调用
-//            Thread payThread = new Thread(payRunnable);
-//            payThread.start();
+                @Override
+                public void onFinish() {
+                    super.onFinish();
+                    if(getView() != null) {
+                        getView().hideLoading();
+                    }
+                }
+            });
         }
     }
 
@@ -92,6 +90,22 @@ public class CashierPresenter extends BasePresenter<CashierContract.View> implem
     @Override
     public void setDefaultPay(int methodId) {
         model.setDefaultPayMethod(methodId);
+    }
+
+    @Override
+    public void loadPayMethods(List<PayMethodBean.MethodItemBean> methods) {
+        if(methods != null && getView() != null) {
+            int id = 1;
+            for(PayMethodBean.MethodItemBean method : methods) {
+                boolean result = getView().addPayMethod(id, method);
+                if(result) {
+                    id++;
+                }
+            }
+            if(id == 1) { // 所有支付方式都不支持
+                getView().showError(CashierModel.ERROR_CODE_METHODS_NONE, null);
+            }
+        }
     }
 
 

@@ -1,36 +1,22 @@
 package cc.seedland.inf.pay.paying;
 
-import android.app.AlertDialog;
 import android.content.Intent;
-import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.alipay.sdk.app.PayTask;
-import com.tencent.mm.opensdk.constants.ConstantsAPI;
-import com.tencent.mm.opensdk.modelbase.BaseReq;
-import com.tencent.mm.opensdk.modelbase.BaseResp;
-import com.tencent.mm.opensdk.modelpay.PayReq;
-import com.tencent.mm.opensdk.openapi.IWXAPI;
-import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
-import com.tencent.mm.opensdk.openapi.WXAPIFactory;
-
-import java.util.HashMap;
 import java.util.Map;
 
 import cc.seedland.inf.corework.mvp.BaseActivity;
 import cc.seedland.inf.pay.R;
-import cc.seedland.inf.pay.utils.DialogUtil;
+import cc.seedland.inf.pay.cashier.PayMethodBean.MethodItemBean;
+import cc.seedland.inf.pay.factory.IPayClient;
+import cc.seedland.inf.pay.factory.IPayResultCallback;
+import cc.seedland.inf.pay.factory.PayClientFactory;
 
 /**
  * 作者 ： 徐春蕾
@@ -38,33 +24,18 @@ import cc.seedland.inf.pay.utils.DialogUtil;
  * 时间 ： 2018/05/30 08:58
  * 描述 ：
  **/
-public class PayingActivity extends BaseActivity<PayingContract.View, PayingPresenter> implements PayingContract.View, IWXAPIEventHandler{
+public class PayingActivity extends BaseActivity<PayingContract.View, PayingPresenter> implements PayingContract.View {
 
     public static final String EXTRA_KEY_METHOD = "method";
     public static final String EXTRA_KEY_ORDER = "order";
-
-    private IWXAPI api;
 
     // view
     private TextView showV;
     private TextView actionV;
 
-    private String method;
+    private MethodItemBean method;
     private String order;
-
-    @Override
-    public void onReq(BaseReq baseReq) {
-
-    }
-
-    @Override
-    public void onResp(BaseResp resp) {
-        Map<String, String> result = new HashMap<>();
-        result.put("method", "wxpay.app");
-        result.put("code", String.valueOf(resp.errCode));
-        result.put("msg", resp.errStr);
-        presenter.handleResult(result);
-    }
+    private IPayClient client;
 
 
     @Override
@@ -100,9 +71,10 @@ public class PayingActivity extends BaseActivity<PayingContract.View, PayingPres
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        method = getIntent().getStringExtra(EXTRA_KEY_METHOD);
+        method = getIntent().getParcelableExtra(EXTRA_KEY_METHOD);
         order = getIntent().getStringExtra(EXTRA_KEY_ORDER);
-        presenter.callPay(method, order);
+        client = PayClientFactory.createPayClient(method);
+        presenter.callPay(order);
     }
 
     @Override
@@ -110,8 +82,8 @@ public class PayingActivity extends BaseActivity<PayingContract.View, PayingPres
         super.onNewIntent(intent);
         setIntent(intent);
 
-        // todo 需要区分支付宝
-        api.handleIntent(intent, this);
+        client.supportPay(this);
+
     }
 
     @Override
@@ -132,39 +104,22 @@ public class PayingActivity extends BaseActivity<PayingContract.View, PayingPres
     }
 
     @Override
-    public void showWXPay(Map<String, String> orderInfo) {
-
-        String appId = orderInfo.get("appid");
-        api = WXAPIFactory.createWXAPI(this, appId, false);
-        api.registerApp(appId);
-        api.handleIntent(getIntent(), this);
-
-        PayReq request = new PayReq();
-        request.appId = appId;
-        request.partnerId = decode(orderInfo.get("partnerid"));
-        request.prepayId= decode(orderInfo.get("prepayid"));
-        request.packageValue = decode(orderInfo.get("package"));
-        request.nonceStr= decode(orderInfo.get("noncestr"));
-        request.timeStamp= decode(orderInfo.get("timestamp"));
-        request.sign= decode(orderInfo.get("sign"));
-        api.sendReq(request);
-    }
-
-    @Override
-    public void showAliPay(String orderInfo) {
-        PayTask alipay = new PayTask(this);
-        final Map<String, String> result = alipay.payV2(orderInfo,true);
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                result.put("method", "alipay.app");
-                presenter.handleResult(result);
-            }
-        });
+    public void showPay(String order) {
+        if(client != null) {
+            client.showPay(this, order, new IPayResultCallback() {
+                @Override
+                public void onResultReceived(Map<String, String> result) {
+                    presenter.handleResult(result);
+                }
+            });
+        }else { // 服务端配置了不支持的支付方式，会提示该信息
+            showToast(getString(R.string.paying_method_not_suppored, method.name));
+        }
     }
 
     @Override
     public void showSuccess() {
+        setResult(RESULT_OK);
         showV.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_paying_success, 0, 0);
         showV.setText(R.string.paying_success);
         actionV.setText(R.string.paying_action_check);
@@ -173,7 +128,6 @@ public class PayingActivity extends BaseActivity<PayingContract.View, PayingPres
             @Override
             public void onClick(View v) {
                 Intent i = new Intent("cc.seedland.inf.PAY");
-                setResult(RESULT_OK);
                 startActivity(i);
                 finish();
             }
@@ -182,6 +136,7 @@ public class PayingActivity extends BaseActivity<PayingContract.View, PayingPres
 
     @Override
     public void showFailed() {
+        setResult(RESULT_CANCELED);
         showV.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_paying_failed, 0, 0);
         showV.setText(R.string.paying_failed);
         actionV.setText(R.string.paying_action_consume);
@@ -189,18 +144,11 @@ public class PayingActivity extends BaseActivity<PayingContract.View, PayingPres
         actionV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                presenter.callPay(method, order);
-                Intent i = new Intent("cc.seedland.inf.PAY");
-                setResult(RESULT_OK);
-                startActivity(i);
-                finish();
+                presenter.callPay(order);
             }
         });
     }
 
-    private String decode(String value) {
-        return Uri.decode(value);
-    }
 
     @Override
     public void showWaiting() {

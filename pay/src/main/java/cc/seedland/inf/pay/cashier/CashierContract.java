@@ -1,5 +1,6 @@
 package cc.seedland.inf.pay.cashier;
 
+import java.util.List;
 import java.util.Map;
 
 import cc.seedland.inf.corework.mvp.IBaseView;
@@ -21,6 +22,12 @@ interface CashierContract {
          * @param orderInfo 订单信息
          */
         void showPay(String method, String orderInfo);
+
+        /**
+         * 添加支付方式
+         * @param method
+         */
+        boolean addPayMethod(int id, PayMethodBean.MethodItemBean method);
     }
 
     interface Presenter {
@@ -29,5 +36,7 @@ interface CashierContract {
         void getDefaultPay();
 
         void setDefaultPay(int methodId);
+
+        void loadPayMethods(List<PayMethodBean.MethodItemBean> methods);
     }
 }

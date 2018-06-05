@@ -4,64 +4,91 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
+        <View
+            android:id="@+id/divider"
+            android:layout_width="1px"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true" />
         <Button
-            android:id="@+id/key_maker"
+            android:id="@+id/main_sign_check_rsa"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="查看/生成渠道公钥/私钥"/>
+            android:layout_height="100dp"
+            android:layout_toLeftOf="@id/divider"
+            android:layout_alignParentLeft="true"
+            android:text="RSA验签"/>
+        <Button
+            android:id="@+id/main_sign_check_rsa2"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@id/divider"
+            android:text="RSA2验签"/>
+        <Button
+            android:id="@+id/main_pay_check_sandbox"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_below="@id/main_sign_check_rsa"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@id/divider"
+            android:text="沙箱支付测试\n(只支持支付宝)"/>
+        <Button
+            android:id="@+id/main_pay_check"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_below="@id/main_sign_check_rsa2"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@id/divider"
+            android:text="支付测试\n(会产生实际费用)"/>
+    </RelativeLayout>
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:orientation="vertical">-->
 
-        <EditText
-            android:id="@+id/sample"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-        <Button
-            android:id="@+id/encrypt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="加密"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="加密结果:"/>
-        <TextView
-            android:id="@+id/encrypt_content"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <Button
-            android:id="@+id/decrypt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="解密"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="解密结果:"/>
-        <TextView
-            android:id="@+id/decrypt_content"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <Button
-            android:id="@+id/pay"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="支付"/>
-        <!--<TextView-->
-            <!--android:id="@+id/alipay_result"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content" />-->
         <!--<Button-->
-            <!--android:id="@+id/wechatpay"-->
+            <!--android:id="@+id/key_maker"-->
             <!--android:layout_width="match_parent"-->
             <!--android:layout_height="wrap_content"-->
-            <!--android:text="微信支付"/>-->
-        <!--<TextView-->
-            <!--android:id="@+id/wechatpay_result"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content" />-->
+            <!--android:text="查看/生成渠道公钥/私钥" />-->
 
-    </LinearLayout>
+        <!--<EditText-->
+            <!--android:id="@+id/sample"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"/>-->
+        <!--<Button-->
+            <!--android:id="@+id/encrypt"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="加密"/>-->
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="加密结果:"/>-->
+        <!--<TextView-->
+            <!--android:id="@+id/encrypt_content"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"/>-->
+        <!--<Button-->
+            <!--android:id="@+id/decrypt"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="解密"/>-->
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="解密结果:"/>-->
+        <!--<TextView-->
+            <!--android:id="@+id/decrypt_content"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"/>-->
+        <!--<Button-->
+            <!--android:id="@+id/pay"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="支付"/>-->
+
+    <!--</LinearLayout>-->
 </ScrollView>

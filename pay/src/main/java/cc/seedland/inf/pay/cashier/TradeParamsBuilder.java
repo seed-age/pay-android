@@ -2,6 +2,7 @@ package cc.seedland.inf.pay.cashier;
 
 import android.text.TextUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -55,6 +56,14 @@ public final class TradeParamsBuilder {
 
     public TradeParamsBuilder mobile(String mobile) {
         params.put("mobile", mobile);
+        return this;
+    }
+
+    public TradeParamsBuilder tradeSubItem(String value) {
+        if(!TextUtils.isEmpty(value)) {
+            params.put("trade_subitem", value);
+        }
+
         return this;
     }
 

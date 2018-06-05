@@ -1,7 +1,12 @@
 package cc.seedland.inf.pay.cashier;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -11,19 +16,28 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+import com.alipay.sdk.app.EnvUtils;
 import com.alipay.sdk.app.PayTask;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
+import cc.seedland.inf.corework.permission.OnPermissionCallback;
+import cc.seedland.inf.corework.permission.PermissionAgent;
 import cc.seedland.inf.pay.PayHome;
 import cc.seedland.inf.pay.cashier.PayMethodBean.MethodItemBean;
 
 import cc.seedland.inf.corework.mvp.BaseActivity;
 import cc.seedland.inf.pay.R;
+import cc.seedland.inf.pay.factory.IPayClient;
+import cc.seedland.inf.pay.factory.PayClientFactory;
 import cc.seedland.inf.pay.paying.PayingActivity;
+import cc.seedland.inf.pay.utils.DialogUtil;
 import cc.seedland.inf.pay.utils.IconLoader;
+import cc.seedland.inf.pay.utils.TipDialog;
 import cc.seedland.inf.pay.widget.RadioGroupEx;
 
 /**
@@ -32,7 +46,8 @@ import cc.seedland.inf.pay.widget.RadioGroupEx;
  * 时间 ： 2018/05/24 14:09
  * 描述 ：
  **/
-public class CashierActivity extends BaseActivity<CashierContract.View, CashierPresenter> implements CashierContract.View, RadioGroupEx.OnCheckedChangeListener {
+public class CashierActivity extends BaseActivity<CashierContract.View, CashierPresenter> implements CashierContract.View,
+        RadioGroupEx.OnCheckedChangeListener, OnPermissionCallback, View.OnClickListener {
 
     public static final String EXTRA_KEY_PAY_METHODS = "methods";
     public static final String EXTRA_KEY_TRADE = "trade";
@@ -40,7 +55,16 @@ public class CashierActivity extends BaseActivity<CashierContract.View, CashierP
     private static final int REQUEST_CODE_PAYING = 8108;
 
     private RadioGroupEx methodContainer;
+    private LayoutInflater inflater;
     public MethodItemBean payItem;         // 当前选择的支付方式
+
+    // 权限
+    private PermissionAgent agent;
+    private static final int REQUEST_CODE_PERMISSION = 0x00099;
+    private static final String[] REQUEST_PERMISSIONS = new String[]{
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
 
     @Override
     protected int getLayoutId() {
@@ -55,6 +79,7 @@ public class CashierActivity extends BaseActivity<CashierContract.View, CashierP
     @Override
     protected void initViews() {
         super.initViews();
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -74,11 +99,28 @@ public class CashierActivity extends BaseActivity<CashierContract.View, CashierP
             }
         });
 
+        // 初始化金额
+        TextView moneyV = findViewById(R.id.cashier_txv_money);
+        BigDecimal moneyCent = new BigDecimal(trade.get("order_amount"));
+        BigDecimal scaleYuan = new BigDecimal(100);
+        moneyV.setText(moneyCent.divide(scaleYuan, 2, RoundingMode.HALF_UP).toString());
+
         // 初始化支付方式
+        inflater = LayoutInflater.from(this);
         methodContainer = findViewById(R.id.cashier_container_method);
-        loadMethods(methodContainer, getIntent().<MethodItemBean>getParcelableArrayListExtra(EXTRA_KEY_PAY_METHODS));
+        methodContainer.setOnCheckedChangeListener(this);
+        ArrayList<MethodItemBean> methods = getIntent().<MethodItemBean>getParcelableArrayListExtra(EXTRA_KEY_PAY_METHODS);
+        presenter.loadPayMethods(methods);
         presenter.getDefaultPay();
 
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        agent = new PermissionAgent(this, REQUEST_CODE_PERMISSION);
+        agent.setCallback(this);
+        agent.requestPermission(REQUEST_PERMISSIONS);
     }
 
     @Override
@@ -94,29 +136,27 @@ public class CashierActivity extends BaseActivity<CashierContract.View, CashierP
         return super.onOptionsItemSelected(item);
     }
 
-    public void loadMethods(RadioGroupEx container, ArrayList<MethodItemBean> methods) {
-        if(methods != null) {
-            container.setOnCheckedChangeListener(this);
-            LayoutInflater inflater = LayoutInflater.from(this);
-            int id = 1;
-            for(MethodItemBean method : methods) {
-                View item = inflater.inflate(R.layout.item_pay_method, container, false);
-                TextView nameV = item.findViewById(R.id.method_txv_name);
-                nameV.setText(method.name);
-                TextView tipV = item.findViewById(R.id.method_txv_tip);
-                tipV.setText(method.toast);
-                RadioButton rdb = item.findViewWithTag("rdb");
-                rdb.setId(id++);
-                ImageView imv = item.findViewById(R.id.method_imv);
-                IconLoader.loadIcon(imv, method.icon);
-                item.setTag(method);
-                container.addView(item);
-            }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_PERMISSION) {
+            agent.verifyPermissions(grantResults);
         }
     }
 
     @Override
+    public void showLoading() {
+        DialogUtil.showLoading(this);
+    }
+
+    @Override
+    public void hideLoading() {
+        DialogUtil.hideLoading();
+    }
+
+    @Override
     public void showError(int code, String msg) {
+        TipDialog.show(this, getString(code));
 
     }
 
@@ -138,9 +178,42 @@ public class CashierActivity extends BaseActivity<CashierContract.View, CashierP
     @Override
     public void showPay(final String method, final String orderInfo) {
         Intent i = new Intent(CashierActivity.this, PayingActivity.class);
-        i.putExtra(PayingActivity.EXTRA_KEY_METHOD, method);
+        i.putExtra(PayingActivity.EXTRA_KEY_METHOD, payItem);
         i.putExtra(PayingActivity.EXTRA_KEY_ORDER, orderInfo);
         startActivityForResult(i, REQUEST_CODE_PAYING);
+    }
+
+    @Override
+    public boolean addPayMethod(int id, MethodItemBean method) {
+        IPayClient client = PayClientFactory.createPayClient(method);
+        client.init(this);
+        if(client.checkSupported()) {
+            View item = inflater.inflate(R.layout.item_pay_method, methodContainer, false);
+            item.setOnClickListener(this);
+            TextView nameV = item.findViewById(R.id.method_txv_name);
+            nameV.setText(method.name);
+            TextView tipV = item.findViewById(R.id.method_txv_tip);
+            tipV.setText(method.toast);
+
+            boolean enabled = method.status == 0;
+            RadioButton rdb = item.findViewWithTag("rdb");
+            rdb.setId(id);
+            rdb.setVisibility(enabled ? View.VISIBLE : View.GONE);
+
+            ImageView imv = item.findViewById(R.id.method_imv);
+            if(!enabled) {
+                imv.setColorFilter(Color.parseColor("#CFCFCF"));
+            }
+
+            IconLoader.loadIcon(imv, method.icon);
+            item.setTag(method);
+            methodContainer.addView(item);
+
+            item.setEnabled(enabled);
+
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -154,5 +227,21 @@ public class CashierActivity extends BaseActivity<CashierContract.View, CashierP
                 }
                 break;
         }
+    }
+
+    @Override
+    public void permissionSuccess(int i) {
+
+    }
+
+    @Override
+    public void permissionFail(int i) {
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        RadioButton rdb = v.findViewWithTag("rdb");
+        rdb.performClick();
     }
 }
