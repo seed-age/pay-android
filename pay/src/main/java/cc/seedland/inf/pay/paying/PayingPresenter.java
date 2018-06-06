@@ -1,15 +1,9 @@
 package cc.seedland.inf.pay.paying;
 
-import com.tencent.mm.opensdk.openapi.IWXAPI;
-import com.tencent.mm.opensdk.openapi.WXAPIFactory;
-
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
 import cc.seedland.inf.corework.mvp.BasePresenter;
-import cc.seedland.inf.pay.factory.IPayClient;
-import cc.seedland.inf.pay.factory.IPayResultCallback;
 
 /**
  * 作者 ： 徐春蕾
@@ -49,6 +43,7 @@ public class PayingPresenter extends BasePresenter<PayingContract.View> implemen
         if(getView() == null) {
             return;
         }
+        getView().prepareForClose(result);
         if(result.get("code").equals("0")) {
             getView().showSuccess();
         }else {

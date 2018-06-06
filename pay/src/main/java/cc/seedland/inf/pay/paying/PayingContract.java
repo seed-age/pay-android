@@ -20,6 +20,7 @@ public interface PayingContract {
         void showSuccess();
         void showFailed();
         void showWaiting();
+        void prepareForClose(Map<String, String> result);
     }
 
     interface Presenter {

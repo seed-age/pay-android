@@ -5,25 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
-
-import android.util.Base64;
-import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
-
-import cc.seedland.inf.pay.PayHome;
-import cc.seedland.inf.pay.PreparePayCallback;
-import cc.seedland.inf.pay.cashier.CashierActivity;
-import cc.seedland.inf.pay.cashier.TradeParamsBuilder;
-import cc.seedland.inf.paydemo.rsa.SignUtil;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 

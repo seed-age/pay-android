@@ -31,8 +31,6 @@ public class PayMethodBean extends BaseBean {
         public int status;
         @SerializedName("pay_ico")
         public String icon;
-        @SerializedName("public_key")
-        public String publicKey;
 
         protected MethodItemBean(Parcel in) {
             type = in.readString();
@@ -40,7 +38,6 @@ public class PayMethodBean extends BaseBean {
             toast = in.readString();
             status = in.readInt();
             icon = in.readString();
-            publicKey = in.readString();
         }
 
         @Override
@@ -50,7 +47,6 @@ public class PayMethodBean extends BaseBean {
             dest.writeString(toast);
             dest.writeInt(status);
             dest.writeString(icon);
-            dest.writeString(publicKey);
         }
 
         @Override

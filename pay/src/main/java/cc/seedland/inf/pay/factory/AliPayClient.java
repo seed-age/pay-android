@@ -14,13 +14,20 @@ import com.google.gson.JsonObject;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.spec.RSAPublicKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.HashMap;
 import java.util.Map;
 
+import cc.seedland.inf.network.GsonHolder;
 import cc.seedland.inf.pay.PayHome;
 import cc.seedland.inf.pay.utils.TipDialog;
 
@@ -30,7 +37,7 @@ import cc.seedland.inf.pay.utils.TipDialog;
  * 时间 ： 2018/05/31 10:47
  * 描述 ：
  **/
-public class AliPayClient extends BaseClient {
+public class AliPayClient implements IPayClient {
     private static final String TAG = "AliPayClient";
     private static final String RESULT_SUCCESS_ALI = "9000";
 
@@ -38,10 +45,6 @@ public class AliPayClient extends BaseClient {
 
     public AliPayClient() {
 
-    }
-
-    public AliPayClient(String publicKey) {
-        super(publicKey);
     }
 
     @Override
@@ -59,16 +62,19 @@ public class AliPayClient extends BaseClient {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                Map<String, String> ret = new HashMap<>();
                 String code = result.get("resultStatus");
-                result.remove("resultStatus");
-                result.put("code", code);
-                if(RESULT_SUCCESS_ALI.equalsIgnoreCase(code)) { // 验签;同步无需验签
-//                    if(checkSign(result.get("result"))){
-                        result.put("code", RESULT_SUCCESS);
-//                    }
-                }
+                ret.put("code", RESULT_SUCCESS_ALI.equalsIgnoreCase(code) ? RESULT_SUCCESS : code);
+                try {
+                    JSONObject response = new JSONObject(result.get("result"));
+                    ret.put("msg", response.optJSONObject("alipay_trade_app_pay_response").optString("msg"));
 
-                callback.onResultReceived(result);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    ret.put("msg", result.get("memo"));
+                }
+                ret.put("raw", GsonHolder.getInstance().toJson(result));
+                callback.onResultReceived(ret);
             }
         });
     }
@@ -81,32 +87,5 @@ public class AliPayClient extends BaseClient {
     @Override
     public boolean checkSupported() {
         return isInstalled;
-    }
-
-    @Override
-    public boolean checkSign(String response) {
-
-        try {
-            JSONObject jsonResult = new JSONObject(response);
-            String data = jsonResult.getString("alipay_trade_app_pay_response");
-            String sign = jsonResult.getString("sign");
-            String signType = jsonResult.getString("sign_type");
-            String charSet = jsonResult.getString("charset");
-            Signature signer = null;
-            if("RSA".equalsIgnoreCase(signType)) {
-                signer = Signature.getInstance("SHA1WithRSA");
-            }else if("RSA2".equalsIgnoreCase(signType)) {
-                signer = Signature.getInstance("SHA256WithRSA");
-            }
-            if(signer != null) {
-                signer.initVerify(key);
-                signer.update(TextUtils.isEmpty(charSet) ? data.getBytes() : data.getBytes(charSet));
-                return signer.verify(TextUtils.isEmpty(charSet) ? sign.getBytes() : sign.getBytes(charSet));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, e.getMessage());
-        }
-        return false;
     }
 }

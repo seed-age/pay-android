@@ -1,7 +1,5 @@
 package cc.seedland.inf.pay.factory;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +13,8 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import cc.seedland.inf.network.GsonHolder;
 
 /**
  * 作者 ： 徐春蕾
@@ -83,6 +83,7 @@ public class WXPayClient implements IPayClient, IWXAPIEventHandler {
         Map<String, String> result = new HashMap<>();
         result.put("code", String.valueOf(resp.errCode));
         result.put("msg", resp.errStr);
+        result.put("raw", GsonHolder.getInstance().toJson(resp));
         callback.onResultReceived(result);
     }
 }

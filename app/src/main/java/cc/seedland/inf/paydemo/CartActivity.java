@@ -1,5 +1,6 @@
 package cc.seedland.inf.paydemo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -43,6 +44,7 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
     private EditText amountV;
     private EditText buyerV;
     private EditText phoneV;
+    private TextView resultV;
 
     // 子业务
     private TradeItemBuilder builder;
@@ -70,6 +72,7 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
         amountV = findViewById(R.id.cart_amount);
         buyerV = findViewById(R.id.cart_buyer);
         phoneV = findViewById(R.id.cart_mobile);
+        resultV = findViewById(R.id.cart_result);
 
         merchantV.setText("商户ID:" + merchantId);
         subCountV = findViewById(R.id.cart_sub_count);
@@ -91,6 +94,26 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == PayHome.REQUEST_CODE_PAY) {
+            switch (resultCode) {
+                case RESULT_OK:
+                    updateTrade();
+                    break;
+                case RESULT_CANCELED:
+                    break;
+            }
+            if(data != null) {
+                Bundle args = data.getBundleExtra("result");
+                resultV.setText("结果数据：code=" + args.getString("code") + ", msg=" + args.getString("msg") + "\n原始数据：" + data.getStringExtra("raw_result"));
+            }
+
+        }
+    }
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.cart_sub_add:
@@ -109,7 +132,7 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
                             .subTotal(2)
                             .end();
                     subV.setText("*" + subTrade + "*" + name + ":" + "单价:" + 1 + "；数量:" + 2 + "；小计:" + 2);
-                    container.addView(subV, container.getChildCount() - 1);
+                    container.addView(subV, container.getChildCount() - 2);
                     subCountV.setText("子业务数：" + count);
                 }else {
                     Toast.makeText(this, "测试5个子业务就够了哈", Toast.LENGTH_SHORT).show();
@@ -117,7 +140,7 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
 
                 break;
             case R.id.cart_pay:
-
+                resultV.setText("");
                 Map<String, String> params = new TradeParamsBuilder()
                         .merchantId(merchantId)
                         .tradeNo(tradeNo)
@@ -138,7 +161,6 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
                         "7dn6Ulfft4vMv0qaNAXwNKhw==", params);
 
                 PayHome.getInstance().openCashier(signParams, this, sandboxFlag);
-                updateTrade();
                 break;
         }
     }
@@ -156,7 +178,7 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
         tradeNoV.setText("订单号:" + tradeNo);
         builder = new TradeItemBuilder();
         if(count != 0) {
-            int end = container.getChildCount() - 2;
+            int end = container.getChildCount() - 3;
             int start = end - (count -1);
             container.removeViews( start, count);
         }

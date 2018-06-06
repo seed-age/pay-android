@@ -21,14 +21,22 @@
         <activity android:name=".CartActivity"
             android:screenOrientation="portrait"/>
 
+        <!--<activity android:name=".SecretKeyActivity"-->
+            <!--android:launchMode="singleTop"-->
+            <!--android:screenOrientation="portrait">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="cc.seedland.inf.PAY" />-->
+                <!--<category android:name="android.intent.category.DEFAULT"/>-->
+            <!--</intent-filter>-->
+        <!--</activity>-->
+
         <activity android:name=".SecretKeyActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="cc.seedland.inf.PAY" />
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
         </activity>
+        <activity-alias
+            android:name="cc.seedland.inf.OrderActivity"
+            android:targetActivity=".SecretKeyActivity" />
 
     </application>
 

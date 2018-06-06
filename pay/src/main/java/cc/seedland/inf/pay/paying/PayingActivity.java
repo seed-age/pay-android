@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -36,6 +37,7 @@ public class PayingActivity extends BaseActivity<PayingContract.View, PayingPres
     private MethodItemBean method;
     private String order;
     private IPayClient client;
+    private Intent data;
 
 
     @Override
@@ -73,7 +75,10 @@ public class PayingActivity extends BaseActivity<PayingContract.View, PayingPres
 
         method = getIntent().getParcelableExtra(EXTRA_KEY_METHOD);
         order = getIntent().getStringExtra(EXTRA_KEY_ORDER);
-        client = PayClientFactory.createPayClient(method);
+        if(method != null) {
+            client = PayClientFactory.createPayClient(method.type);
+        }
+
         presenter.callPay(order);
     }
 
@@ -81,8 +86,10 @@ public class PayingActivity extends BaseActivity<PayingContract.View, PayingPres
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
+        if(client != null) {
+            client.supportPay(this);
+        }
 
-        client.supportPay(this);
 
     }
 
@@ -119,7 +126,7 @@ public class PayingActivity extends BaseActivity<PayingContract.View, PayingPres
 
     @Override
     public void showSuccess() {
-        setResult(RESULT_OK);
+        setResult(RESULT_OK, data);
         showV.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_paying_success, 0, 0);
         showV.setText(R.string.paying_success);
         actionV.setText(R.string.paying_action_check);
@@ -127,7 +134,8 @@ public class PayingActivity extends BaseActivity<PayingContract.View, PayingPres
         actionV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent("cc.seedland.inf.PAY");
+                Intent i = new Intent();
+                i.setClassName(getPackageName(), "cc.seedland.inf.OrderActivity");
                 startActivity(i);
                 finish();
             }
@@ -136,7 +144,7 @@ public class PayingActivity extends BaseActivity<PayingContract.View, PayingPres
 
     @Override
     public void showFailed() {
-        setResult(RESULT_CANCELED);
+        setResult(RESULT_CANCELED, data);
         showV.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_paying_failed, 0, 0);
         showV.setText(R.string.paying_failed);
         actionV.setText(R.string.paying_action_consume);
@@ -147,6 +155,12 @@ public class PayingActivity extends BaseActivity<PayingContract.View, PayingPres
                 presenter.callPay(order);
             }
         });
+
+        Bundle args = data.getBundleExtra("result");
+        if(args != null) {
+            String msg = args.getString("msg");
+            showToast(TextUtils.isEmpty(msg) ? getString(R.string.paying_result_error_unknown) : msg);
+        }
     }
 
 
@@ -159,5 +173,17 @@ public class PayingActivity extends BaseActivity<PayingContract.View, PayingPres
         actionV.setText(R.string.paying_tip);
         actionV.setBackgroundResource(0);
         actionV.setOnClickListener(null);
+    }
+
+    @Override
+    public void prepareForClose(Map<String, String> result) {
+        data = new Intent();
+        Bundle args = new Bundle();
+        if(result != null) {
+            args.putString("code", result.get("code"));
+            args.putString("msg", result.get("msg"));
+            data.putExtra("raw_result", result.get("raw"));
+        }
+        data.putExtra("result", args);
     }
 }

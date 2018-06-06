@@ -22,20 +22,23 @@ public class PayClientFactory {
 
     private static final Map<String, IPayClient> CLIENT_STORE = new HashMap<>();
 
-    public static IPayClient createPayClient(MethodItemBean method) {
-        IPayClient client = CLIENT_STORE.get(method.type);
+    public static IPayClient createPayClient(String method) {
+        if(method != null) {
+            IPayClient client = CLIENT_STORE.get(method);
 
-        if(client == null) {
-            if(CLIENT_TYPE_ALIPAY.equalsIgnoreCase(method.type)) {
-                client = new AliPayClient(method.publicKey);
-            }else if(CLIENT_TYPE_WXPAY.equalsIgnoreCase(method.type)) {
-                client = new WXPayClient();
+            if(client == null) {
+                if(CLIENT_TYPE_ALIPAY.equalsIgnoreCase(method)) {
+                    client = new AliPayClient();
+                }else if(CLIENT_TYPE_WXPAY.equalsIgnoreCase(method)) {
+                    client = new WXPayClient();
+                }
+                if(client != null) {
+                    CLIENT_STORE.put(method, client);
+                }
             }
-            if(client != null) {
-                CLIENT_STORE.put(method.type, client);
-            }
+
+            return client;
         }
-
-        return client;
+        return null;
     }
 }

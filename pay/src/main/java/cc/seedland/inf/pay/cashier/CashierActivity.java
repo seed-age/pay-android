@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -185,34 +186,41 @@ public class CashierActivity extends BaseActivity<CashierContract.View, CashierP
 
     @Override
     public boolean addPayMethod(int id, MethodItemBean method) {
-        IPayClient client = PayClientFactory.createPayClient(method);
-        client.init(this);
-        if(client.checkSupported()) {
-            View item = inflater.inflate(R.layout.item_pay_method, methodContainer, false);
-            item.setOnClickListener(this);
-            TextView nameV = item.findViewById(R.id.method_txv_name);
-            nameV.setText(method.name);
-            TextView tipV = item.findViewById(R.id.method_txv_tip);
-            tipV.setText(method.toast);
+        if(method != null) {
+            IPayClient client = PayClientFactory.createPayClient(method.type);
+            if(client == null) {
+                showToast(getString(R.string.paying_method_not_suppored, method.name));
+            }else {
+                client.init(this);
+                if(client.checkSupported()) {
+                    View item = inflater.inflate(R.layout.item_pay_method, methodContainer, false);
+                    item.setOnClickListener(this);
+                    TextView nameV = item.findViewById(R.id.method_txv_name);
+                    nameV.setText(method.name);
+                    TextView tipV = item.findViewById(R.id.method_txv_tip);
+                    tipV.setText(method.toast);
 
-            boolean enabled = method.status == 0;
-            RadioButton rdb = item.findViewWithTag("rdb");
-            rdb.setId(id);
-            rdb.setVisibility(enabled ? View.VISIBLE : View.GONE);
+                    boolean enabled = method.status == 0;
+                    RadioButton rdb = item.findViewWithTag("rdb");
+                    rdb.setId(id);
+                    rdb.setVisibility(enabled ? View.VISIBLE : View.GONE);
 
-            ImageView imv = item.findViewById(R.id.method_imv);
-            if(!enabled) {
-                imv.setColorFilter(Color.parseColor("#CFCFCF"));
+                    ImageView imv = item.findViewById(R.id.method_imv);
+                    if(!enabled) {
+                        imv.setColorFilter(Color.parseColor("#CFCFCF"));
+                    }
+
+                    IconLoader.loadIcon(imv, method.icon);
+                    item.setTag(method);
+                    methodContainer.addView(item);
+
+                    item.setEnabled(enabled);
+
+                    return true;
+                }
             }
-
-            IconLoader.loadIcon(imv, method.icon);
-            item.setTag(method);
-            methodContainer.addView(item);
-
-            item.setEnabled(enabled);
-
-            return true;
         }
+
         return false;
     }
 
@@ -222,9 +230,11 @@ public class CashierActivity extends BaseActivity<CashierContract.View, CashierP
 
         switch (requestCode) {
             case REQUEST_CODE_PAYING:
-                if(resultCode == Activity.RESULT_OK) {
+                if(resultCode == RESULT_OK) {
+                    setResult(resultCode, data);
                     finish();
                 }
+
                 break;
         }
     }

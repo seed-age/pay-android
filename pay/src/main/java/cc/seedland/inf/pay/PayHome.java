@@ -1,5 +1,6 @@
 package cc.seedland.inf.pay;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
@@ -28,13 +29,14 @@ import cc.seedland.inf.pay.utils.DialogUtil;
  **/
 public class PayHome {
 
+    public static final int REQUEST_CODE_PAY = 8888;
+
     private static final PayHome INSTANCE = new PayHome();
     private static Application APP;
     private static String CHANNEL_ID;
     private static String HOST;
 
     private SharedPreferences prefs;
-    private PreparePayCallback callback;
 
     private PayHome() {
 
@@ -61,7 +63,6 @@ public class PayHome {
 
     public final void openCashier(final TreeMap<String, String> trade, final Context context) {
 
-//        this.callback = callback;
         DialogUtil.showLoading(context);
         OkGo.<PayMethodBean>get(getFullUrl("unipay/rest/1.0/pay/supports"))
                 .params("channel_id", CHANNEL_ID)
@@ -76,7 +77,11 @@ public class PayHome {
                         trade.put("channel_id", CHANNEL_ID);
                         trade.put("client_type", String.valueOf(0));
                         i.putExtra(CashierActivity.EXTRA_KEY_TRADE, trade);
-                        context.startActivity(i);
+                        if(context instanceof Activity) {
+                            ((Activity)context).startActivityForResult(i, REQUEST_CODE_PAY);
+                        }else {
+                            context.startActivity(i);
+                        }
                     }
                     @Override
                     public void onError(Response<PayMethodBean> response) {
@@ -111,10 +116,6 @@ public class PayHome {
         }
 
         return prefs;
-    }
-
-    public PreparePayCallback getCallback() {
-        return callback;
     }
 
     public static String getFullUrl(String path) {
