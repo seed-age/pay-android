@@ -25,7 +25,7 @@ import cc.seedland.inf.pay.factory.PayClientFactory;
  * 时间 ： 2018/05/30 08:58
  * 描述 ：
  **/
-public class PayingActivity extends BaseActivity<PayingContract.View, PayingPresenter> implements PayingContract.View {
+public class PayingActivity extends BaseActivity<PayingPresenter> implements PayingContract.View {
 
     public static final String EXTRA_KEY_METHOD = "method";
     public static final String EXTRA_KEY_ORDER = "order";
@@ -46,7 +46,7 @@ public class PayingActivity extends BaseActivity<PayingContract.View, PayingPres
     }
 
     @Override
-    protected PayingPresenter createPresenter(PayingContract.View view) {
+    protected PayingPresenter createPresenter() {
         return new PayingPresenter(this);
     }
 
@@ -60,7 +60,7 @@ public class PayingActivity extends BaseActivity<PayingContract.View, PayingPres
         ActionBar bar = getSupportActionBar();
         bar.setDisplayShowTitleEnabled(false);
         bar.setDisplayHomeAsUpEnabled(true);
-        bar.setHomeAsUpIndicator(R.drawable.ic_back);
+        bar.setHomeAsUpIndicator(R.drawable.ic_close);
 
         TextView titleV = findViewById(R.id.txv_title);
         titleV.setText(R.string.cashier_title);
@@ -89,7 +89,6 @@ public class PayingActivity extends BaseActivity<PayingContract.View, PayingPres
         if(client != null) {
             client.supportPay(this);
         }
-
 
     }
 

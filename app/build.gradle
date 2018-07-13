@@ -1,9 +1,17 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'seedpay'
+            keyPassword 'seedpay'
+            storeFile file('/Users/xuchunlei/Projects/seedland/seedpay-android/seedpay.jks')
+            storePassword 'seedpay'
+        }
+    }
     compileSdkVersion compile_sdk_version
     defaultConfig {
-        applicationId "cc.seedland.inf.paydemo"
+        applicationId "cc.seedland.inf.demo"
         minSdkVersion min_sdk_version
         targetSdkVersion target_sdk_version
         versionCode version_code
@@ -14,6 +22,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
         }
     }
 }

@@ -39,10 +39,11 @@
         <!-- 支付宝 - end -->
 
         <!-- 微信 - begin -->
-        <activity-alias
-            android:name="${applicationId}.wxapi.WXPayEntryActivity"
-            android:exported="true"
-            android:targetActivity=".paying.PayingActivity" />
+        <!--android:name="${applicationId}.wxapi.WXPayEntryActivity"-->
+        <!--<activity-alias-->
+            <!--android:name="${applicationId}.wxapi.WXPayEntryActivity"-->
+            <!--android:exported="true"-->
+            <!--android:targetActivity=".paying.PayingActivity" />-->
         <!-- 微信 - end -->
     </application>
 </manifest>

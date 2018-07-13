@@ -18,11 +18,6 @@ public class PayingPresenter extends BasePresenter<PayingContract.View> implemen
     }
 
     @Override
-    public void init() {
-
-    }
-
-    @Override
     public void callPay(final String orderInfo) {
         if(orderInfo == null) {
             return;

@@ -47,6 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/spacing_big"
         android:background="@color/green"
+        android:enabled="false"
         android:textColor="@color/white"
         android:textSize="@dimen/font_size_big"
         android:text="@string/cashier_confirm"/>

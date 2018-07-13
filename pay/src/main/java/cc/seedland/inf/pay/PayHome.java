@@ -34,7 +34,6 @@ public class PayHome {
     private static final PayHome INSTANCE = new PayHome();
     private static Application APP;
     private static String CHANNEL_ID;
-    private static String HOST;
 
     private SharedPreferences prefs;
 
@@ -49,7 +48,6 @@ public class PayHome {
             String key = app.getString(R.string.key);
             Networkit.init(app, channel, key);
             CHANNEL_ID = app.getString(R.string.channel_id);
-            HOST = app.getString(R.string.http_host);
         }
     }
 
@@ -64,10 +62,9 @@ public class PayHome {
     public final void openCashier(final TreeMap<String, String> trade, final Context context) {
 
         DialogUtil.showLoading(context);
-        OkGo.<PayMethodBean>get(getFullUrl("unipay/rest/1.0/pay/supports"))
+        OkGo.<PayMethodBean>get(Networkit.generateFullUrl("/unipay/rest/1.0/pay/supports"))
                 .params("channel_id", CHANNEL_ID)
                 .params("merchant_id", trade.get("merchant_id"))
-                .tag("seedland")
                 .execute(new SeedCallback<PayMethodBean>(PayMethodBean.class) {
                     @Override
                     public void onSuccess(Response<PayMethodBean> response) {
@@ -102,11 +99,8 @@ public class PayHome {
                 });
     }
 
-    public final void openCashier(final TreeMap<String, String> trade, final Context context, boolean flag) {
-        if(flag) {
-            EnvUtils.setEnv(EnvUtils.EnvEnum.SANDBOX);
-        }
-        openCashier(trade, context);
+    private void openSandbox(boolean sandbox) {
+        EnvUtils.setEnv(sandbox ? EnvUtils.EnvEnum.SANDBOX : EnvUtils.EnvEnum.ONLINE);
     }
 
     public SharedPreferences getPayConfigs() {
@@ -116,10 +110,6 @@ public class PayHome {
         }
 
         return prefs;
-    }
-
-    public static String getFullUrl(String path) {
-        return HOST.concat(path);
     }
 
 }

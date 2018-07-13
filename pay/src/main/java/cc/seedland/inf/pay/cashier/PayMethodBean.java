@@ -22,7 +22,7 @@ public class PayMethodBean extends BaseBean {
     @SerializedName("support_pay_type")
     public ArrayList<MethodItemBean> methods;
 
-    public static class MethodItemBean implements Parcelable {
+    public static class MethodItemBean extends BaseBean implements Parcelable {
         @SerializedName("pay_type")
         public String type;
         @SerializedName("pay_name")

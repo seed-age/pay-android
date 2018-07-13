@@ -12,6 +12,7 @@ import com.lzy.okgo.model.Response;
 import java.util.Map;
 
 import cc.seedland.inf.network.GsonHolder;
+import cc.seedland.inf.network.Networkit;
 import cc.seedland.inf.network.SeedCallback;
 import cc.seedland.inf.pay.PayHome;
 import cc.seedland.inf.pay.R;
@@ -24,7 +25,7 @@ import cc.seedland.inf.pay.factory.PayClientFactory;
  * 时间 ： 2018/05/28 16:53
  * 描述 ：
  **/
-public class CashierModel {
+class CashierModel {
 
     public static final int ERROR_CODE_METHODS_NONE = R.string.cashier_error_no_methods_supported;
 
@@ -33,8 +34,7 @@ public class CashierModel {
     }
 
     public void preparePay(String method, Map<String, String> params, SeedCallback<PayCallBean> callback) {
-
-        OkGo.<PayCallBean>post(PayHome.getFullUrl("unipay/rest/1.0/pay?pay_type=").concat(method))
+        OkGo.<PayCallBean>post(Networkit.generateFullUrl("/unipay/rest/1.0/pay?pay_type=").concat(method))
                 .tag("seedland")
                 .upJson(GsonHolder.getInstance().toJson(params))
                 .execute(callback);

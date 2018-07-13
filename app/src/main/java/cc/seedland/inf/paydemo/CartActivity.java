@@ -160,7 +160,7 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
                         "hN+sUQWNVV1OMi9M0WwoH0u/NG+ZhZRootpZ6UA+GxUJAzAkEAoJwZrmetqnuBbWL41PhoLrD3yn2BJDcvWuwkVBUEdZl5IsPhcHPvYFm3f2DI++" +
                         "7dn6Ulfft4vMv0qaNAXwNKhw==", params);
 
-                PayHome.getInstance().openCashier(signParams, this, sandboxFlag);
+                PayHome.getInstance().openCashier(signParams, this);
                 break;
         }
     }

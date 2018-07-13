@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.main_pay_check_sandbox:
                 Intent iPayS = new Intent(this, CartActivity.class);
-                iPayS.putExtra(CartActivity.EXTRA_KEY_MERCHANT, "5188611025943281");
+                iPayS.putExtra(CartActivity.EXTRA_KEY_MERCHANT, "5188611100000000");
                 iPayS.putExtra(CartActivity.EXTRA_KEY_SANDBOX_ON, true);
                 startActivity(iPayS);
                 break;

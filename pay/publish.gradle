@@ -1,0 +1,75 @@
+apply plugin: 'maven-publish'
+
+/**
+ * 部署任务
+ * = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+ * gradle deploy                     - 部署debug或release构建类型的包到seedland的nexus服务器
+ * gradle deploy -PbuildType=Dev     - 部署Dev构建类型的包到seedland的nexus服务器, Dev用于联调环境
+ * 部署仓库根据versionName动态选择，带有SNAPSHOT的版本会发布到snapshot仓库，其他发布到release仓库
+ * = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+ * 作者：徐春蕾 时间：2018年6月6日
+ */
+task deploy(dependsOn: ':pay:clean') {
+
+    def type = project.hasProperty('buildType') ? buildType : 'Release'
+    doFirst {
+        exec {
+            commandLine "gradle", ":pay:assemble$type"
+        }
+    }
+
+    doLast {
+        exec {
+            commandLine "gradle", "publish", "-PbuildType=$type"
+        }
+    }
+}
+
+publishing {
+    publications {
+        library(MavenPublication) {
+            groupId 'cc.seedland.inf'
+            artifactId 'pay'
+            version pay_version_name
+
+            def type = project.hasProperty('buildType') ? buildType : 'Release'
+            artifact("$buildDir/outputs/aar/${project.getName()}-${type.toLowerCase()}.aar")
+
+            pom.withXml {
+                def node = asNode().appendNode('dependencies')
+
+                configurations.implementation.allDependencies.each {
+                    if(it.group != null && it.version != null) {
+                        def dependencyNode = node.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                    }
+                }
+            }
+
+        }
+    }
+
+    repositories{
+        maven {
+            def type = project.hasProperty('buildType') ? buildType : 'Release'
+
+            if(type.equalsIgnoreCase("dev")) { // 开发环境为测试服务器并发布到开发仓库
+                url "http://developer.seedland.cc/nexus/repository/maven-dev/"
+            }else if(type.equalsIgnoreCase("release")){ // 发布环境为生产服务器并根据版本选择仓库
+                if (pay_version_name.contains("SNAPSHOT")) {
+                    url "http://developer.seedland.cc/nexus/repository/maven-snapshots/"
+                } else {
+                    url "http://developer.seedland.cc/nexus/repository/maven-releases/"
+                }
+
+            }
+
+            credentials {
+                username "admin"
+                password 'inf888'
+            }
+        }
+    }
+}

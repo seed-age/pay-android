@@ -3,8 +3,6 @@ apply plugin: 'com.android.library'
 android {
     compileSdkVersion compile_sdk_version
 
-
-
     defaultConfig {
         minSdkVersion min_sdk_version
         targetSdkVersion target_sdk_version
@@ -21,12 +19,15 @@ android {
     buildTypes {
 
         debug {
-            resValue "string", "http_host", "https://test-open.seedland.cc/"
+
         }
+
+        dev.initWith(buildTypes.release)
 
         release {
             minifyEnabled true
             zipAlignEnabled true
+            debuggable true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -46,15 +47,16 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    implementation('cc.seedland.inf:network:1.0.1-SNAPSHOT@aar') {
+    implementation('cc.seedland.inf:network:1.0.0@aar') {
         transitive = true
         changing = true
     }
 
-    implementation('cc.seedland.inf:corework:1.0.1-SNAPSHOT@aar') {
-        transitive = true
+    implementation('cc.seedland.inf:corework:1.0.0@aar') {
         changing = true
     }
 
     implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
 }
+
+apply from: 'publish.gradle'

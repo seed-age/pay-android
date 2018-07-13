@@ -24,7 +24,7 @@ public class IconLoader {
     public static void loadIcon(final ImageView imv, String url) {
 
         OkGo.<Bitmap>get(url)
-                .tag(imv)
+                .tag("external")
                 .execute(new BitmapCallback() {
                     @Override
                     public void onSuccess(Response<Bitmap> response) {

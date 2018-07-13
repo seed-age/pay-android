@@ -17,17 +17,12 @@ import cc.seedland.inf.pay.PayHome;
  * 时间 ： 2018/05/24 14:26
  * 描述 ：
  **/
-public class CashierPresenter extends BasePresenter<CashierContract.View> implements CashierContract.Presenter {
+class CashierPresenter extends BasePresenter<CashierContract.View> implements CashierContract.Presenter {
 
     private CashierModel model = new CashierModel();
 
     public CashierPresenter(CashierContract.View view) {
         super(view);
-    }
-
-    @Override
-    public void init() {
-
     }
 
     @Override

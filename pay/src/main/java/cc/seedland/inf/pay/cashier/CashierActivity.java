@@ -4,15 +4,20 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -47,7 +52,7 @@ import cc.seedland.inf.pay.widget.RadioGroupEx;
  * 时间 ： 2018/05/24 14:09
  * 描述 ：
  **/
-public class CashierActivity extends BaseActivity<CashierContract.View, CashierPresenter> implements CashierContract.View,
+public class CashierActivity extends BaseActivity<CashierPresenter> implements CashierContract.View,
         RadioGroupEx.OnCheckedChangeListener, OnPermissionCallback, View.OnClickListener {
 
     public static final String EXTRA_KEY_PAY_METHODS = "methods";
@@ -56,8 +61,10 @@ public class CashierActivity extends BaseActivity<CashierContract.View, CashierP
     private static final int REQUEST_CODE_PAYING = 8108;
 
     private RadioGroupEx methodContainer;
+    private Button confirmV;
     private LayoutInflater inflater;
-    public MethodItemBean payItem;         // 当前选择的支付方式
+    private MethodItemBean payItem;         // 当前选择的支付方式
+    private @ColorInt int colorDisable;
 
     // 权限
     private PermissionAgent agent;
@@ -73,7 +80,7 @@ public class CashierActivity extends BaseActivity<CashierContract.View, CashierP
     }
 
     @Override
-    protected CashierPresenter createPresenter(CashierContract.View view) {
+    protected CashierPresenter createPresenter() {
         return new CashierPresenter(this);
     }
 
@@ -93,7 +100,10 @@ public class CashierActivity extends BaseActivity<CashierContract.View, CashierP
         titleV.setText(R.string.cashier_title);
 
         final TreeMap<String, String> trade = new TreeMap<> ((Map<String, String>)getIntent().getExtras().get(EXTRA_KEY_TRADE));
-        findViewById(R.id.cashier_btn_confirm).setOnClickListener(new View.OnClickListener() {
+        confirmV = findViewById(R.id.cashier_btn_confirm);
+        colorDisable = getResources().getColor(R.color.gray);
+        confirmV.getBackground().setColorFilter(colorDisable, PorterDuff.Mode.SRC_ATOP);
+        confirmV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 presenter.pay(payItem, trade);
@@ -102,20 +112,19 @@ public class CashierActivity extends BaseActivity<CashierContract.View, CashierP
 
         // 初始化金额
         TextView moneyV = findViewById(R.id.cashier_txv_money);
-        BigDecimal moneyCent = new BigDecimal(trade.get("order_amount"));
-        BigDecimal scaleYuan = new BigDecimal(100);
-        moneyV.setText(moneyCent.divide(scaleYuan, 2, RoundingMode.HALF_UP).toString());
+        moneyV.setText(formatMoney(trade));
 
         // 初始化支付方式
         inflater = LayoutInflater.from(this);
         methodContainer = findViewById(R.id.cashier_container_method);
         methodContainer.setOnCheckedChangeListener(this);
-        ArrayList<MethodItemBean> methods = getIntent().<MethodItemBean>getParcelableArrayListExtra(EXTRA_KEY_PAY_METHODS);
+        ArrayList<MethodItemBean> methods = getIntent().getParcelableArrayListExtra(EXTRA_KEY_PAY_METHODS);
         presenter.loadPayMethods(methods);
         presenter.getDefaultPay();
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -169,6 +178,11 @@ public class CashierActivity extends BaseActivity<CashierContract.View, CashierP
             payItem = (MethodItemBean)item.getTag();
         }
         presenter.setDefaultPay(checkedId);
+        if(!confirmV.isEnabled()) {
+            confirmV.setEnabled(true);
+            confirmV.getBackground().clearColorFilter();
+        }
+
     }
 
     @Override
@@ -207,7 +221,7 @@ public class CashierActivity extends BaseActivity<CashierContract.View, CashierP
 
                     ImageView imv = item.findViewById(R.id.method_imv);
                     if(!enabled) {
-                        imv.setColorFilter(Color.parseColor("#CFCFCF"));
+                        imv.setColorFilter(colorDisable);
                     }
 
                     IconLoader.loadIcon(imv, method.icon);
@@ -230,8 +244,8 @@ public class CashierActivity extends BaseActivity<CashierContract.View, CashierP
 
         switch (requestCode) {
             case REQUEST_CODE_PAYING:
+                setResult(resultCode, data);
                 if(resultCode == RESULT_OK) {
-                    setResult(resultCode, data);
                     finish();
                 }
 
@@ -253,5 +267,16 @@ public class CashierActivity extends BaseActivity<CashierContract.View, CashierP
     public void onClick(View v) {
         RadioButton rdb = v.findViewWithTag("rdb");
         rdb.performClick();
+    }
+
+    private String formatMoney(Map<String, String> trade) {
+        BigDecimal moneyCent = new BigDecimal(trade.get("order_amount"));
+        BigDecimal scaleYuan = new BigDecimal(100);
+        String currency = trade.get("currency");
+        String money = moneyCent.divide(scaleYuan, 2, RoundingMode.HALF_UP).toString();
+        if("CNY".equals(currency)) {
+            money = "¥ " + money;
+        }
+        return money;
     }
 }

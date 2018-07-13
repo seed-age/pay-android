@@ -12,7 +12,8 @@ ext {
 
     // 库构建版本
     pay_version_code = 1
-    pay_version_name = '1.0.0-SNAPSHOT'
+//    pay_version_name = '1.0.1-SNAPSHOT'
+    pay_version_name = '1.0.0'
 
     // 依赖第三方库版本
     support_version = '27.1.1'

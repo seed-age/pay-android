@@ -20,6 +20,8 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+-ignorewarning
+
 # 支付宝SDK
 -keep class com.alipay.android.app.IAlixPay{*;}
 -keep class com.alipay.android.app.IAlixPay$Stub{*;}
@@ -42,3 +44,8 @@
 -keep class com.ut.device.** { *;}
 
 # seedpay
+-keepparameternames
+-keep class cc.seedland.inf.pay.PayHome{ *; }
+-keep public class * extends cc.seedland.inf.network.BaseBean{ *; }
+-keep class cc.seedland.inf.pay.cashier.TradeItemBuilder{ *; }
+-keep class cc.seedland.inf.pay.cashier.TradeParamsBuilder{ *; }

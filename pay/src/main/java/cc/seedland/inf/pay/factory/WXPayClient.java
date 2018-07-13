@@ -55,8 +55,8 @@ public class WXPayClient implements IPayClient, IWXAPIEventHandler {
         PayReq request = new PayReq();
         request.appId = appId;
         request.partnerId = orderParams.get("partnerid");
-        request.prepayId= Uri.decode(orderParams.get("prepayid"));
-        request.packageValue = orderParams.get("package");
+        request.prepayId= orderParams.get("prepayid");
+        request.packageValue = Uri.decode(orderParams.get("package"));
         request.nonceStr= orderParams.get("noncestr");
         request.timeStamp= orderParams.get("timestamp");
         request.sign= orderParams.get("sign");
