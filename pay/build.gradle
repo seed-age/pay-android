@@ -36,7 +36,7 @@ android {
 }
 
 configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
 dependencies {
@@ -47,7 +47,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    implementation('cc.seedland.inf:network:1.0.0@aar') {
+    implementation('cc.seedland.inf:network:1.1.0@aar') {
         transitive = true
         changing = true
     }

@@ -2,6 +2,7 @@ package cc.seedland.inf.pay.factory;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.tencent.mm.opensdk.modelbase.BaseReq;
@@ -11,10 +12,12 @@ import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import cc.seedland.inf.network.GsonHolder;
+import java.util.Set;
 
 /**
  * 作者 ： 徐春蕾
@@ -83,7 +86,19 @@ public class WXPayClient implements IPayClient, IWXAPIEventHandler {
         Map<String, String> result = new HashMap<>();
         result.put("code", String.valueOf(resp.errCode));
         result.put("msg", resp.errStr);
-        result.put("raw", GsonHolder.getInstance().toJson(resp));
+
+        JSONObject rawJson = new JSONObject();
+        Bundle rawBundle = new Bundle();
+        resp.toBundle(rawBundle);
+        Set<String> keySet = rawBundle.keySet();
+        for (String key : keySet) {
+            try {
+                rawJson.put(key, rawBundle.get(key));
+            } catch(JSONException e) {
+
+            }
+        }
+        result.put("raw", rawJson.toString());
         callback.onResultReceived(result);
     }
 }

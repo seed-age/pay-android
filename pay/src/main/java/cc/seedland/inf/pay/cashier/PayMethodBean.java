@@ -3,7 +3,8 @@ package cc.seedland.inf.pay.cashier;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.gson.annotations.SerializedName;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -17,20 +18,39 @@ import cc.seedland.inf.network.BaseBean;
  **/
 
 public class PayMethodBean extends BaseBean {
-    @SerializedName("expire_time")
+
     public int expireTime;
-    @SerializedName("support_pay_type")
     public ArrayList<MethodItemBean> methods;
 
+    public static PayMethodBean fromJson(JSONObject json) {
+        PayMethodBean bean = new PayMethodBean();
+        bean.expireTime = json.optInt("expire_time");
+        JSONArray array = json.optJSONArray("support_pay_type");
+        bean.methods = new ArrayList<>();
+        for(int i = 0;i < array.length();i++) {
+            bean.methods.add(MethodItemBean.fromJson(array.optJSONObject(i)));
+        }
+        return bean;
+    }
+
     public static class MethodItemBean extends BaseBean implements Parcelable {
-        @SerializedName("pay_type")
         public String type;
-        @SerializedName("pay_name")
         public String name;
         public String toast;
         public int status;
-        @SerializedName("pay_ico")
         public String icon;
+
+        public MethodItemBean(JSONObject json) {
+            type = json.optString("pay_type");
+            name = json.optString("pay_name");
+            toast = json.optString("toast");
+            status = json.optInt("status");
+            icon = json.optString("pay_ico");
+        }
+
+        private static MethodItemBean fromJson(JSONObject json) {
+            return new MethodItemBean(json);
+        }
 
         protected MethodItemBean(Parcel in) {
             type = in.readString();

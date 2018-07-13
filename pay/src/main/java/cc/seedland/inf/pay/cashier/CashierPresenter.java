@@ -1,15 +1,14 @@
 package cc.seedland.inf.pay.cashier;
 
-import com.alipay.sdk.app.PayTask;
 import com.lzy.okgo.model.Response;
+
+import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
 
 import cc.seedland.inf.corework.mvp.BasePresenter;
-import cc.seedland.inf.network.SeedCallback;
-import cc.seedland.inf.pay.PayHome;
+import cc.seedland.inf.network.JsonCallback;
 
 /**
  * 作者 ： 徐春蕾
@@ -37,18 +36,17 @@ class CashierPresenter extends BasePresenter<CashierContract.View> implements Ca
         }
         if(payItem != null && tradeParams != null && !tradeParams.isEmpty()) {
             final String method = payItem.type;
-            model.preparePay(payItem.type, tradeParams, new SeedCallback<PayCallBean>(PayCallBean.class){
+            model.preparePay(payItem.type, tradeParams, new JsonCallback(){
                 @Override
-                public void onSuccess(Response<PayCallBean> response) {
-                    super.onSuccess(response);
-                    final String orderInfo = response.body().params;
+                public void onSuccess(Response<JSONObject> response) {
+                    final String orderInfo = response.body().optString("params");
                     if(getView() != null) {
                         getView().showPay(method, orderInfo);
                     }
                 }
 
                 @Override
-                public void onError(Response<PayCallBean> response) {
+                public void onError(Response<JSONObject> response) {
                     super.onError(response);
                     String msg = "unknown error";
                     if(response != null && response.getException() != null) {

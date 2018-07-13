@@ -4,32 +4,14 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
 
 import com.alipay.sdk.app.PayTask;
-import com.google.gson.JsonObject;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.math.BigInteger;
-import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.security.spec.RSAPublicKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
 import java.util.Map;
-
-import cc.seedland.inf.network.GsonHolder;
-import cc.seedland.inf.pay.PayHome;
-import cc.seedland.inf.pay.utils.TipDialog;
 
 /**
  * 作者 ： 徐春蕾
@@ -73,7 +55,7 @@ public class AliPayClient implements IPayClient {
                     e.printStackTrace();
                     ret.put("msg", result.get("memo"));
                 }
-                ret.put("raw", GsonHolder.getInstance().toJson(result));
+                ret.put("raw", new JSONObject(result).toString());
                 callback.onResultReceived(ret);
             }
         });
