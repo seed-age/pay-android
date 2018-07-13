@@ -1,11 +1,11 @@
 package cc.seedland.inf.pay.cashier;
 
+import org.json.JSONArray;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import cc.seedland.inf.network.GsonHolder;
 
 /**
  * 作者 ： 徐春蕾
@@ -67,7 +67,6 @@ public class TradeItemBuilder {
     }
 
     public String build() {
-
-        return GsonHolder.getInstance().toJson(params);
+        return new JSONArray(params).toString();
     }
 }

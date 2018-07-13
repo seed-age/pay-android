@@ -1,23 +1,15 @@
 package cc.seedland.inf.pay.cashier;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Log;
-import android.widget.Toast;
-
-import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
-import com.lzy.okgo.model.Response;
+
+import org.json.JSONObject;
 
 import java.util.Map;
 
-import cc.seedland.inf.network.GsonHolder;
+import cc.seedland.inf.network.JsonCallback;
 import cc.seedland.inf.network.Networkit;
-import cc.seedland.inf.network.SeedCallback;
 import cc.seedland.inf.pay.PayHome;
 import cc.seedland.inf.pay.R;
-import cc.seedland.inf.pay.factory.IPayClient;
-import cc.seedland.inf.pay.factory.PayClientFactory;
 
 /**
  * 作者 ： 徐春蕾
@@ -33,10 +25,10 @@ class CashierModel {
 
     }
 
-    public void preparePay(String method, Map<String, String> params, SeedCallback<PayCallBean> callback) {
-        OkGo.<PayCallBean>post(Networkit.generateFullUrl("/unipay/rest/1.0/pay?pay_type=").concat(method))
+    public void preparePay(String method, Map<String, String> params, JsonCallback callback) {
+        OkGo.<JSONObject>post(Networkit.generateFullUrl("/unipay/rest/1.0/pay?pay_type=").concat(method))
                 .tag("seedland")
-                .upJson(GsonHolder.getInstance().toJson(params))
+                .upJson(new JSONObject(params).toString())
                 .execute(callback);
     }
 

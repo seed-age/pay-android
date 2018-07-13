@@ -6,17 +6,24 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.alipay.sdk.app.EnvUtils;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.model.Response;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
+import cc.seedland.inf.network.JsonCallback;
 import cc.seedland.inf.network.Networkit;
-import cc.seedland.inf.network.SeedCallback;
 import cc.seedland.inf.pay.cashier.CashierActivity;
 import cc.seedland.inf.pay.cashier.PayMethodBean;
 import cc.seedland.inf.pay.utils.DialogUtil;
@@ -62,15 +69,14 @@ public class PayHome {
     public final void openCashier(final TreeMap<String, String> trade, final Context context) {
 
         DialogUtil.showLoading(context);
-        OkGo.<PayMethodBean>get(Networkit.generateFullUrl("/unipay/rest/1.0/pay/supports"))
+        OkGo.<JSONObject>get(Networkit.generateFullUrl("/unipay/rest/1.0/pay/supports"))
                 .params("channel_id", CHANNEL_ID)
                 .params("merchant_id", trade.get("merchant_id"))
-                .execute(new SeedCallback<PayMethodBean>(PayMethodBean.class) {
+                .execute(new JsonCallback() {
                     @Override
-                    public void onSuccess(Response<PayMethodBean> response) {
-                        super.onSuccess(response);
+                    public void onSuccess(Response<JSONObject> response) {
                         Intent i = new Intent(context, CashierActivity.class);
-                        i.putParcelableArrayListExtra(CashierActivity.EXTRA_KEY_PAY_METHODS, response.body().methods);
+                        i.putParcelableArrayListExtra(CashierActivity.EXTRA_KEY_PAY_METHODS, PayMethodBean.fromJson(response.body()).methods);
                         trade.put("channel_id", CHANNEL_ID);
                         trade.put("client_type", String.valueOf(0));
                         i.putExtra(CashierActivity.EXTRA_KEY_TRADE, trade);
@@ -81,7 +87,7 @@ public class PayHome {
                         }
                     }
                     @Override
-                    public void onError(Response<PayMethodBean> response) {
+                    public void onError(Response<JSONObject> response) {
                         super.onError(response);
 
                         String msg = "unknown error";
